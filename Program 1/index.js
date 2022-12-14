@@ -10,6 +10,25 @@ const alteredColor = document.getElementById('alteredColor');
 const alteredColorText = document.getElementById('alteredColorText');
 const sliderText = document.getElementById('sliderText');
 const slider = document.getElementById('slider');
+const lightenText = document.getElementById('lightenText');
+const darkenText = document.getElementById('darkenText');
+const toggleBtn = document.getElementById('toggleBtn');
+
+// *event listener for toggled btn
+toggleBtn.addEventListener('click', ()=> {
+  if(toggleBtn.classList.contains('toggled')){  //for lighten
+    toggleBtn.classList.remove('toggled');
+    lightenText.classList.remove('unselected');
+    darkenText.classList.add('unselected')
+  }
+  else {    // for darken
+    toggleBtn.classList.add('toggled');
+    lightenText.classList.add('unselected');
+    darkenText.classList.remove('unselected')
+  }
+  reset();
+})
+
 
 hexInput.addEventListener('keyup', () => {
     const hex = hexInput.value;
@@ -18,6 +37,7 @@ hexInput.addEventListener('keyup', () => {
     const strippedHex = hex.replace('#', ''); 
     
     inputColor.style.backgroundColor = hex;
+    reset();
 }
 )
 
@@ -28,7 +48,7 @@ const isValidHex = (hex) => {
     return strippedHex.length === 3 || strippedHex.length === 6;
 
 }
-// converting hex values to rgb
+// *converting hex values to rgb
 const convertHexToRGB = (hex) => {
     if(!isValidHex(hex)) return null;
     
@@ -47,7 +67,7 @@ const convertHexToRGB = (hex) => {
   }
   //console.log(convertHexToRGB("ffe"));
 
-  // convert rgb value to hex
+  // *convert rgb value to hex
   const convertRGBToHex = (r,g,b) => {
     const firstPair = ("0" + r.toString(16)).slice(-2);
     const secondPair = ("0" + g.toString(16)).slice(-2);
@@ -65,8 +85,8 @@ const increaseWithin0T0255 = (hex, amount) => {
   // if (newHex < 0) return 0;
   return Math.min(255, Math.max(0,hex+amount));
 }
-// altering the color : subtracing from color => darker
-// adding to the color => lighter
+// *altering the color : subtracing from color => darker
+// *adding to the color => lighter
 const alterColor = (hex, percentage) => {
   const {r,g,b} = convertHexToRGB(hex);
 
@@ -82,16 +102,34 @@ const alterColor = (hex, percentage) => {
  //console.log(alterColor('fff', 10));
 
 
-// displaying the percentage
+// *displaying the percentage
   slider.addEventListener('input' , () => {
     if(!isValidHex(hexInput.value)) return ;
 
     sliderText.textContent = `${slider.value}%`;
 
-    const alteredHex = alterColor(hexInput.value, slider.value);
+// *slider behaving as the slider wants: if toggled btn is 
+// *set up as lighten then, slider lightens the color
+// *if toggled btn is set as darken , then it darkens the color
+    const valueAddition = toggleBtn.classList.contains('toggled') ? 
+    -slider.value 
+    : slider.value;
+
+    // *altering the box of altered color on the basis of calculation
+    const alteredHex = alterColor(hexInput.value, valueAddition);
     alteredColor.style.backgroundColor = alteredHex;
-    alteredColorText.innerText = "Altered Color " +  alteredHex;
+    alteredColorText.innerText = `Altered Color ${alteredHex}`;
   })
+
+  // * resetting the vlaue of slider btn when the toggled btn
+  // * is moved
+  const reset = () => {
+    slider.value =0
+    sliderText.innerText = `0%`;
+    alteredColor.style.backgroundColor = hexInput.value; // * resetting the altered color
+    alteredColorText.innerText = `Altered Color ${hexInput.value}`;
+
+  }
 
   /* 
 console.log(isValidHex("#000000")) //true
